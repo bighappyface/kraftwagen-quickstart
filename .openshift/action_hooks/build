@@ -25,3 +25,19 @@ fi
   git clone git://github.com/kraftwagen/kraftwagen.git
   drush cc drush
 }
+
+#
+# Kraftwagen setup
+#
+[ -d "${OPENSHIFT_REPO_DIR}cnf" ] || {
+  cd ${OPENSHIFT_REPO_DIR}src
+  drush kw-s
+}
+
+#
+# Kraftwagen initial build
+#
+[ -L "${OPENSHIFT_REPO_DIR}build" ] || {
+  cd ${OPENSHIFT_REPO_DIR}src
+  drush kw-b
+}
