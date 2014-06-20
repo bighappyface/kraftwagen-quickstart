@@ -3,7 +3,7 @@
 $databases = array (
   'default' => array (
     'default' => array (
-      'database' => $_ENV['OPENSHIFT_REPO_DIR'],
+      'database' => $_ENV['OPENSHIFT_APP_NAME'],
       'username' => $_ENV['OPENSHIFT_MYSQL_DB_USERNAME'],
       'password' => $_ENV['OPENSHIFT_MYSQL_DB_PASSWORD'],
       'host'     => $_ENV['OPENSHIFT_MYSQL_DB_HOST'],
