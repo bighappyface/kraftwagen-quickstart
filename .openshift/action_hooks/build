@@ -41,5 +41,5 @@ ln -s ${OPENSHIFT_REPO_DIR}build ${OPENSHIFT_REPO_DIR}php
 #
 # Patches
 #
-${OPENSHIFT_REPO_DIR}php
-patch -p0 -i ${OPENSHIFT_REPO_DIR}patches/update_htaccess_for_apache_2_4-1599774-25.patch
+cd ${OPENSHIFT_REPO_DIR}php
+patch -p0 -i ${OPENSHIFT_REPO_DIR}patches/update_htaccess_for_apache_2_4-1599774-25.patch .htaccess
