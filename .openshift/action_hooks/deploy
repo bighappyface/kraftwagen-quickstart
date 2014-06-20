@@ -1,0 +1,126 @@
+#!/bin/bash -x
+# This deploy hook gets executed after dependencies are resolved and the
+# build hook has been run but before the application has been started back
+# up again.  This script gets executed directly, so it could be python, php,
+# ruby, etc.
+
+set -e
+
+DRUPAL_SITE_DIR=${OPENSHIFT_DATA_DIR}sites
+DRUPAL_PRIVATE_DIR=${OPENSHIFT_DATA_DIR}private
+DRUPAL_FILES_DIR=${DRUPAL_SITE_DIR}/default/files
+DRUPAL_SETTINGS=${DRUPAL_SITE_DIR}/default/settings.php
+DEFAULT_PASSWORD=openshift_changeme
+
+if [ ! -d "${DRUPAL_SITE_DIR}/default" ]
+then
+  echo "No sites directory has been created, Drupal cannot be deployed"
+  exit 9
+fi
+
+#
+# Create a new Drupal site.  You can delete your ${OPENSHIFT_DATA_DIR}sites
+# folder to run this step again.
+#
+if [ ! -f "${DRUPAL_SITE_DIR}/default/settings.php" ]
+then
+
+  #
+  # Automatic installation only works with mysql.
+  # 
+  if [ -z "$OPENSHIFT_MYSQL_DB_HOST" ]
+  then
+      echo 1>&2
+      echo "Could not find mysql database. Please run:" 1>&2
+      echo "rhc cartridge add mysql -a $OPENSHIFT_APP_NAME" 1>&2
+      echo "then make a sample commit (add whitespace somewhere) and re-push" 1>&2
+      echo 1>&2
+  fi
+
+  if [ -z "$OPENSHIFT_MYSQL_DB_HOST" ]
+  then
+      exit 5
+  fi
+  if [ -z "$OPENSHIFT_MYSQL_DB_PORT" ]
+  then
+      exit 6
+  fi
+
+  mkdir -p ${DRUPAL_FILES_DIR}
+  mkdir -p ${DRUPAL_PRIVATE_DIR}
+
+  pushd ${OPENSHIFT_REPO_DIR}php
+
+  # Installing 8 is too slow, so instead, make a settings file from default.settings.php.
+  if [ ! -f "$DRUPAL_SETTINGS" ]
+  then
+    cp ${DRUPAL_SITE_DIR}/default/{default.,}settings.php
+  fi
+
+  #
+  # Tweak settings.php to use the OpenShift environment variables instead of
+  # the values passed to Drush.
+  #
+  chmod u+w ${DRUPAL_SETTINGS} ${DRUPAL_SITE_DIR}/default
+  cat ${DRUPAL_SETTINGS} | ruby -e "puts STDIN.read.gsub(/\\\$databases\s*=\s*array.*?\)\;/m, '# Replaced by OpenShift')" > ${OPENSHIFT_TMP_DIR}/settings.php
+  cat << "END" >> ${OPENSHIFT_TMP_DIR}/settings.php
+
+/**
+ * For maximum portability, use the OpenShift environment variables.
+ */
+
+// When run from Drush, only $_ENV is available.  Might be a bug
+if (array_key_exists('OPENSHIFT_APP_NAME', $_SERVER)) {
+  $src = $_SERVER;
+} else {
+  $src = $_ENV;
+}
+$databases = array (
+  'default' => 
+  array (
+    'default' => 
+    array (
+      'database' => $src['OPENSHIFT_APP_NAME'],
+      'username' => $src['OPENSHIFT_MYSQL_DB_USERNAME'],
+      'password' => $src['OPENSHIFT_MYSQL_DB_PASSWORD'],
+      'host' => $src['OPENSHIFT_MYSQL_DB_HOST'],
+      'port' => $src['OPENSHIFT_MYSQL_DB_PORT'],
+      'driver' => 'mysql',
+      'prefix' => '',
+    ),
+  ),
+);
+END
+  cat ${OPENSHIFT_TMP_DIR}/settings.php > ${DRUPAL_SETTINGS}
+
+  #
+  # Use the temporary directories that OpenShift provides, and set
+  # the private path to be inside the data dir
+  #
+  echo "\$conf['file_private_path'] = \$src['OPENSHIFT_DATA_DIR'] . 'private/';" >> ${DRUPAL_SETTINGS}
+  echo "\$conf['file_temporary_path'] = \$src['OPENSHIFT_TMP_DIR'] . 'drupal/';" >> ${DRUPAL_SETTINGS}
+
+  chmod u-w ${DRUPAL_SETTINGS} ${DRUPAL_SITE_DIR}/default
+
+  echo
+  echo "Creating a new Drupal site at ${DRUPAL_SITE_DIR}/default"
+  echo
+  drush site-install standard --site-name=${OPENSHIFT_APP_NAME} --account-pass=openshift_changeme --db-url=mysql://$OPENSHIFT_MYSQL_DB_USERNAME:$OPENSHIFT_MYSQL_DB_PASSWORD@$OPENSHIFT_MYSQL_DB_HOST:$OPENSHIFT_MYSQL_DB_PORT/$OPENSHIFT_APP_NAME --yes &
+  #then
+  #  echo "Unable to configure your Drupal installation"
+  #  echo
+  #  exit 10
+  #fi
+
+  popd
+  echo
+  echo ""
+  echo "Drupal 8 has been set up but not installed."
+  echo "Go to http://${OPENSHIFT_APP_DNS}/core/install.php to install Drupal."
+  if [ ! -z $OPENSHIFT_MYSQL_DB_PASSWORD ]; then
+    echo "You will need to enter ${OPENSHIFT_MYSQL_DB_PASSWORD} as the MySQL password for the installer."
+  fi
+else
+  echo "Drupal is already configured.  Delete settings.php to rerun setup"
+fi
+echo
