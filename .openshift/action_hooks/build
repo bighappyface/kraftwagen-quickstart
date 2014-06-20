@@ -1,0 +1,27 @@
+#!/bin/bash -x
+# This is a simple build script and will be executed on your CI system if 
+# available.  Otherwise it will execute while your application is stopped
+# before the deploy step.  This script gets executed directly, so it
+# could be python, php, ruby, etc. 
+
+set -e
+
+#
+# The PHP dir must not be present in repo
+#
+if [ -e "${OPENSHIFT_REPO_DIR}php" ]
+then
+  echo "ERROR: The 'php' directory in your Git repo prevents Drupal from being installed.  Please remove 'php' and push again."
+  exit 5
+fi
+
+
+#
+# Ensure Kraftwagen is installed
+#
+[ -d ${OPENSHIFT_HOMEDIR}.drush/kraftwagen ] || {
+  echo "Installing Kraftwagen"
+  cd ${OPENSHIFT_HOMEDIR}.drush
+  git clone git://github.com/kraftwagen/kraftwagen.git
+  drush cc drush
+}
