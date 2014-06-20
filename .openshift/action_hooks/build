@@ -19,8 +19,9 @@ fi
 #
 # Ensure Kraftwagen is installed
 #
-[ -d ~/.drush/kraftwagen ] || {
-  ~/.drush
+[ -d ${OPENSHIFT_HOMEDIR}.drush/kraftwagen ] || {
+  echo "Installing Kraftwagen"
+  cd ${OPENSHIFT_HOMEDIR}.drush
   git clone git://github.com/kraftwagen/kraftwagen.git
   drush cc drush
 }
