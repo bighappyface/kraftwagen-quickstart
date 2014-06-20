@@ -19,3 +19,8 @@ fi
 #
 # Ensure Kraftwagen is installed
 #
+[ -d ~/.drush/kraftwagen ] || {
+  ~/.drush
+  git clone git://github.com/kraftwagen/kraftwagen.git
+  drush cc drush
+}
