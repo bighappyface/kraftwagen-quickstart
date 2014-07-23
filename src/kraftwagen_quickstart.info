@@ -1,0 +1,14 @@
+name = Kraftwagen Quickstart
+description = Install site for Kraftwagen Quickstart
+core = 7.x
+
+dependencies[] = block
+dependencies[] = dblog
+
+dependencies[] = kw_manifests
+dependencies[] = features
+
+env_dependencies[development][] = field_ui
+env_dependencies[development][] = strongarm
+
+files[] = kraftwagen_quickstart.profile

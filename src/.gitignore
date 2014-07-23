@@ -6,6 +6,6 @@ modules/contrib/*
 modules/kraftwagen/*
 !modules/kraftwagen/README.md
 
-# OS specific shit
+# OS specific
 .DS_Store
 Thumbs.db

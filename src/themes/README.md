@@ -1,4 +1,4 @@
-This directory contains the themes for ***HUMAN_NAME***.
+This directory contains the themes for Kraftwagen Quickstart.
 
 There is no separation between contributed and custom themes here. Instead of 
 hundreds of themes, you usually have just two of them. Sometimes when things get

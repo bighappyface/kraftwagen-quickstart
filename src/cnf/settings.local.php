@@ -3,15 +3,15 @@
 $databases = array (
   'default' => array (
     'default' => array (
-      'database' => $_ENV['OPENSHIFT_APP_NAME'],
-      'username' => $_ENV['OPENSHIFT_MYSQL_DB_USERNAME'],
-      'password' => $_ENV['OPENSHIFT_MYSQL_DB_PASSWORD'],
-      'host'     => $_ENV['OPENSHIFT_MYSQL_DB_HOST'],
-      'port'     => $_ENV['OPENSHIFT_MYSQL_DB_PORT'],
+      'database' => 'DATABASE_NAME',
+      'username' => 'DATABASE_USERNAME',
+      'password' => 'DATABASE_PASSWORD',
+      'host'     => 'localhost',
+      'port'     => '',
       'driver'   => 'mysql',
       'prefix'   => '',
     ),
   ),
 );
 
-$drupal_hash_salt = $_ENV['OPENSHIFT_SECRET_TOKEN'];
+$drupal_hash_salt = 'SOME_REALLY_RANDOM_STRING';

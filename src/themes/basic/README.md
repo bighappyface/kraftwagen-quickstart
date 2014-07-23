@@ -1,1 +1,1 @@
-Basic is the default theme for ***HUMAN_NAME***.
+Basic is the default theme for Kraftwagen Quickstart.
