@@ -6,6 +6,11 @@
 #
 # Initialize DB
 #
-( drush sql-query "SELECT * FROM users WHERE uid=1" && drush kw-u ) || {
+( drush sql-query "SELECT * FROM users WHERE uid=1" ) || {
   drush kw-id
 }
+
+#
+# Update
+#
+drush kw-u
