@@ -43,3 +43,15 @@ ln -s ${OPENSHIFT_REPO_DIR}build ${OPENSHIFT_REPO_DIR}php
 #
 cd ${OPENSHIFT_REPO_DIR}php
 patch -p0 -i ${OPENSHIFT_REPO_DIR}patches/update_htaccess_for_apache_2_4-1599774-25.patch .htaccess
+
+#
+# Initialize DB
+#
+[ drush sql-query "SELECT * FROM users WHERE uid=1" ] || {
+  drush kw-id
+}
+
+#
+# Update
+#
+drush kw-u
