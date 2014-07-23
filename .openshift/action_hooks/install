@@ -1,10 +1,20 @@
 #!/bin/bash -x
-# This is a simple build script and will be executed on your CI system if
+# This is a simple build script and will be executed on your CI system if 
 # available.  Otherwise it will execute while your application is stopped
 # before the deploy step.  This script gets executed directly, so it
-# could be python, php, ruby, etc.
+# could be python, php, ruby, etc. 
 
 set -e
+
+#
+# Ensure Kraftwagen is installed
+#
+[ -d ${OPENSHIFT_HOMEDIR}.drush/kraftwagen ] || {
+  echo "Installing Kraftwagen"
+  cd ${OPENSHIFT_HOMEDIR}.drush
+  git clone git://github.com/kraftwagen/kraftwagen.git
+  drush cc drush
+}
 
 #
 # Kraftwagen setup
@@ -33,8 +43,3 @@ ln -s ${OPENSHIFT_REPO_DIR}build ${OPENSHIFT_REPO_DIR}php
 #
 cd ${OPENSHIFT_REPO_DIR}php
 patch -p0 -i ${OPENSHIFT_REPO_DIR}patches/update_htaccess_for_apache_2_4-1599774-25.patch .htaccess
-
-#
-# Update
-#
-drush kw-u
