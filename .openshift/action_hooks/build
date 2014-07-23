@@ -7,6 +7,16 @@
 set -e
 
 #
+# Ensure Kraftwagen is installed
+#
+[ -d ${OPENSHIFT_HOMEDIR}.drush/kraftwagen ] || {
+  echo "Installing Kraftwagen"
+  cd ${OPENSHIFT_HOMEDIR}.drush
+  git clone git://github.com/kraftwagen/kraftwagen.git
+  drush cc drush
+}
+
+#
 # Kraftwagen setup
 #
 [ -d "${OPENSHIFT_REPO_DIR}cnf" ] || {
@@ -35,6 +45,8 @@ cd ${OPENSHIFT_REPO_DIR}php
 patch -p0 -i ${OPENSHIFT_REPO_DIR}patches/update_htaccess_for_apache_2_4-1599774-25.patch .htaccess
 
 #
-# Update
+# Initialize DB
 #
-drush kw-u
+[ drush sql-query "SELECT * FROM users WHERE uid=1" && drush kw-u ] || {
+  drush kw-id
+}
