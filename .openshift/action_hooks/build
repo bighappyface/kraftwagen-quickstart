@@ -47,6 +47,6 @@ patch -p0 -i ${OPENSHIFT_REPO_DIR}patches/update_htaccess_for_apache_2_4-1599774
 #
 # Initialize DB
 #
-[ drush sql-query "SELECT * FROM users WHERE uid=1" && drush kw-u ] || {
+[ drush sql-query "SELECT * FROM users WHERE uid=1" -a drush kw-u ] || {
   drush kw-id
 }
